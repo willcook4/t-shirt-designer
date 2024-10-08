@@ -1,15 +1,15 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import {
     AccumulativeShadows,
     useGLTF,
-    OrbitControls,
     Center,
     Environment,
     RandomizedLight
 } from "@react-three/drei";
+import { easing } from 'maath'
 import { useRef } from "react";
 
-export const App = ({ position=[-1,0,2.5], fov = 25 }) => (
+export const App = ({ position=[0,0,2.5], fov = 25 }) => (
     <Canvas eventSource={document.getElementById('root')}
             eventPrefix={"client"}
             camera={{position, fov}}
@@ -19,11 +19,13 @@ export const App = ({ position=[-1,0,2.5], fov = 25 }) => (
         <ambientLight intensity={ 0.5 }/>
 
         <Environment preset={ "city" } />
-        <Center>
-            <Shirt/>
+
+        <CameraRig>
             <Backdrop />
-        </Center>
-        <OrbitControls/>
+            <Center>
+                <Shirt/>
+            </Center>
+        </CameraRig>
     </Canvas>
 );
 
@@ -69,6 +71,27 @@ function Backdrop() {
             />
         </AccumulativeShadows>
     )
+}
+
+function CameraRig({children}) {
+    /**
+     * Actually moving the scene, not the camera. Replacement to Orbit controls so that we can control
+     * where/what the user can view
+     */
+    const group = useRef()
+
+    useFrame((state, delta) => {
+        easing.damp3(state.camera.position, [0, 0, 1.8], 0.25, delta)
+        easing.dampE(
+            group.current.rotation,
+            // [state.pointer.y / 10, -state.pointer.x / 5, 0],
+            [state.pointer.y / 3, -state.pointer.x / 2, 0],
+            0.25,
+            delta
+        )
+    })
+
+    return <group ref={group}>{children}</group>
 }
 
 useGLTF.preload('/shirt_baked_collapsed.glb')
