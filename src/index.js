@@ -11,8 +11,8 @@ const root = createRoot(rootElement);
 root.render(
   // <StrictMode>
     <>
-        <Overlay />
         <Canvas />
+        <Overlay />
     </>
   // </StrictMode>
 );

@@ -1,8 +1,24 @@
-import { Logo } from '@pmndrs/branding'
-import { AiOutlineHighlight, AiOutlineShopping } from "react-icons/ai";
+import {Logo} from '@pmndrs/branding'
+import {
+    AiOutlineHighlight,
+    AiOutlineShopping,
+    AiFillCamera,
+    AiOutlineArrowLeft
+} from 'react-icons/ai'
 
 export default function Overlay() {
-    return <Intro />
+    return (
+        <div className="container">
+            <header>
+                <Logo width="40" height="40"/>
+                <div>
+                    <AiOutlineShopping size="3em"/>
+                </div>
+            </header>
+
+            <Customizer/>
+        </div>
+    )
 }
 
 function Intro() {
@@ -10,7 +26,9 @@ function Intro() {
         <div className="container">
             <header>
                 <Logo width="40" height="40"/>
-                <AiOutlineShopping size="3em"/>
+                <div>
+                    <AiOutlineShopping size="3em"/>
+                </div>
             </header>
 
             <section key="main">
@@ -33,5 +51,50 @@ function Intro() {
                 </div>
             </section>
         </div>
+    )
+}
+
+function Customizer() {
+    const colors = [
+        '#ccc',
+        '#EFBD4E',
+        '#80C670',
+        '#726DE8',
+        '#EF674E',
+        '#353934',
+        'Purple'
+    ]
+    const decals = ['react', 'three2', 'pmndrs']
+
+    return (
+        <section key="custom">
+            <div className="customizer">
+                <div className="color-options">
+                    {colors.map((color) => (
+                        <div
+                            key={color}
+                            className="circle"
+                            style={{background: color}}></div>
+                    ))}
+                </div>
+                <div className="decals">
+                    <div className="decals--container">
+                        {decals.map((decal) => (
+                            <div key={decal} className="decal">
+                                <img src={decal + '_thumb.png'} alt="brand"/>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <button className="share" style={{background: 'black'}}>
+                    DOWNLOAD
+                    <AiFillCamera size="1.3em"/>
+                </button>
+                <button className="exit" style={{background: 'black'}}>
+                    GO BACK
+                    <AiOutlineArrowLeft size="1.3em"/>
+                </button>
+            </div>
+        </section>
     )
 }
