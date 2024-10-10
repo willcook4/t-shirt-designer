@@ -1,29 +1,32 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import {Canvas, useFrame} from "@react-three/fiber";
 import {
     AccumulativeShadows,
     useGLTF,
     Center,
     Environment,
-    RandomizedLight
+    RandomizedLight,
+    Decal,
+    useTexture,
 } from "@react-three/drei";
-import { easing } from 'maath'
-import { useRef } from "react";
-import { useSnapshot } from "valtio";
-import { state } from './store';
+import {easing} from 'maath'
+import {useRef} from "react";
+import {useSnapshot} from "valtio";
+import {state} from './store';
 
-export const App = ({ position=[0,0,2.5], fov = 25 }) => (
+export const App = ({position = [0, 0, 2.5], fov = 25}) => (
     <Canvas eventSource={document.getElementById('root')}
             eventPrefix={"client"}
             camera={{position, fov}}
             shadows
+            gl={{ preserveDrawingBuffer: true }}
     >
 
-        <ambientLight intensity={ 0.5 }/>
+        <ambientLight intensity={0.5} />
 
-        <Environment preset={ "city" } />
+        <Environment preset={"city"} />
 
         <CameraRig>
-            <Backdrop />
+            <Backdrop/>
             <Center>
                 <Shirt/>
             </Center>
@@ -32,8 +35,11 @@ export const App = ({ position=[0,0,2.5], fov = 25 }) => (
 );
 
 function Shirt(props) {
-    const snap = useSnapshot(state)
-    const { nodes, materials } = useGLTF('/shirt_baked_collapsed.glb')
+    const snap = useSnapshot(state);
+
+    const texture = useTexture(`/${ snap.selectedDecal }.png`);
+
+    const {nodes, materials} = useGLTF('/shirt_baked_collapsed.glb');
 
     useFrame((state, delta) =>
         easing.dampC(materials.lambert1.color, snap.selectedColor, 0.25, delta)
@@ -41,13 +47,34 @@ function Shirt(props) {
 
     return (
         <mesh
-          castShadow
-          geometry={nodes.T_Shirt_male.geometry}
-          material={materials.lambert1}
-          material-roughness={1}
-          {...props}
-          dispose={null}></mesh>
-      )
+            castShadow
+            geometry={nodes.T_Shirt_male.geometry}
+            material={materials.lambert1}
+            material-roughness={1}
+            {...props}
+            dispose={null}
+        >
+            <Decal
+                position={[0, 0.04, 0.15]}
+                rotation={[0, 0, 0]}
+                scale={0.15}
+                opacity={0.3} // TODO opacity doesn't appear to be working
+                map={texture}
+                // map-anisotropy={16}
+                // TODO revisit
+                /* Rather than
+                const texture = useTexture('/three2.png');
+                which sets the anisotrophy to 1 on the texture we can use the max of the client
+
+                const texture = useLoader(TextureLoader, 'path/to/texture.jpg');
+                const { gl } = useThree(); // Access the Three.js context
+
+                // Set anisotropy for the texture
+                texture.anisotropy = gl.capabilities.getMaxAnisotropy();
+                 */
+            />
+        </mesh>
+    )
 }
 
 function Backdrop() {
